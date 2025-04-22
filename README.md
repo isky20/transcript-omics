@@ -1,4 +1,5 @@
-This R script performs differential expression analysis using the edgeR package:
+This R script performs differential expression analysis 
+using the edgeR package:
 ```
 1- Reads a raw count matrix from a CSV file.
 2- Extracts case and control sample columns based on user input.
@@ -20,4 +21,14 @@ Rscript run_edgeR_DEG.R \                          # Run the R script using Rscr
   --named.control Control \                        # Label to assign to the control group
   --number.logFC 1 \                               # Log2 fold-change threshold for filtering DEGs
   --number.FDR 0.05                                # FDR (adjusted p-value) threshold for filtering DEGs
+```
+using the DEseq2 package:
+
+```
+1- Loads count matrix and sample metadata (study design).
+2- Loops through each variable in the study design.
+3- Runs DESeq2 for normalization and differential expression.
+4- Filters significant genes (FDR ≤ 0.05).
+5- Labels genes as up/downregulated.
+6- Saves results for each comparison to output files.
 ```
