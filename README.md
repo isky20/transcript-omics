@@ -1,3 +1,14 @@
+
+RNA pipline with HISAT2
+```
+Aligns paired-end reads using HISAT2.
+Converts SAM to BAM, sorts, and indexes using samtools.
+Counts reads mapped to genes using featureCounts.
+Outputs:sorted.bam and .bai and counts.txt
+```
+```
+./hisat2_align_featurecounts.sh
+```
 RNA pipline with STAR
 ```
 Parse arguments – Get paths and settings from the user.
