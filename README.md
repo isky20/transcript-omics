@@ -32,3 +32,14 @@ using the DEseq2 package:
 5- Labels genes as up/downregulated.
 6- Saves results for each comparison to output files.
 ```
+Enrichment 
+```
+1- Load required libraries (dplyr, readxl, rbioapi).
+2- Parse input arguments: CSV file name and STRING organism ID.
+3- Read the input CSV containing gene symbols and regulation status.
+4- Filter up-regulated genes and run STRING enrichment.
+5- Save up-regulated enrichment results to a CSV file.
+6- Filter down-regulated genes and run STRING enrichment.
+7- Save down-regulated enrichment results to another CSV file.
+8- If no results are found, save a message instead of a table.
+```
