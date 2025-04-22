@@ -1,7 +1,5 @@
 This R script performs differential expression analysis 
-
-```
-using the DEseq2 package:
+Using the DEseq2 package:
 
 ```
 1- Loads count matrix and sample metadata (study design).
