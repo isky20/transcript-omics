@@ -11,11 +11,11 @@ This R script performs differential expression analysis using the edgeR package:
 ```
 ```
 Rscript run_edgeR_DEG.R \                          # Run the R script using Rscript
-  --raw.reads.csv path/to/your_raw_counts.csv \    # Path to your input count matrix CSV file
-  --colname.case Sample1_Case \                    # Name of the first case sample column in the CSV
+  --raw.reads.csv counts.csv \                     # Path to your input count matrix CSV file
+  --colname.case Case1 \                           # Name of the first case sample column in the CSV
   --number.case.samples 3 \                        # Total number of case samples
   --named.case Case \                              # Label to assign to the case group
-  --colname.control Sample1_Control \              # Name of the first control sample column in the CSV
+  --colname.control Control1 \                     # Name of the first control sample column in the CSV
   --number.control.samples 3 \                     # Total number of control samples
   --named.control Control \                        # Label to assign to the control group
   --number.logFC 1 \                               # Log2 fold-change threshold for filtering DEGs
