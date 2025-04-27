@@ -110,7 +110,7 @@ python3 run_rna_pipeline.py \
 ```
 
 ```
-Rscript run_edgeR_DEG.R \
+Rscript DESeq2_dge.r \
   --raw.reads.csv counts.csv \
   --colname.case Case1 \
   --number.case.samples 3 \
