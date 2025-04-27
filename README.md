@@ -1,23 +1,105 @@
+# 🧬 RNA-Seq Read Alignment, Quantification, and Enrichment Pipeline
 
-RNA pipline with HISAT2
-```
-Aligns paired-end reads using HISAT2.
-Converts SAM to BAM, sorts, and indexes using samtools.
-Counts reads mapped to genes using featureCounts.
-Outputs:sorted.bam and .bai and counts.txt
-```
-```
-./hisat2_align_featurecounts.sh
-```
-RNA pipline with STAR
-```
-Parse arguments – Get paths and settings from the user.
-Detect FASTQ files – Identify _R1 and _R2 pairs (or single-end).
-Run STAR – Align each sample to the reference genome and generate sorted BAM files.
-Collect BAMs – Store output BAM files for downstream use.
-Run featureCounts – Quantify gene expression from BAMs using the provided GTF.
-Save Output – Store gene count matrix in the specified output directory.
-```
+This pipeline is a simplified RNA-Seq analysis workflow that includes read alignment, gene quantification, differential expression analysis, and functional enrichment analysis.
+
+---
+
+## 📂 Input Requirements
+- Paired-end FASTQ files (`*_R1.fastq*`, `*_R2.fastq*`)
+- Reference genome STAR index
+- GTF gene annotation file
+- Study design file (CSV, describing sample groups)
+- STRING taxonomy ID (e.g., `9606` for human)
+
+---
+
+## 🔹 Pipeline Steps
+
+### 📁 1. Prepare Output Directory
+- Create a directory to save all output files.
+
+### 🔎 2. Find FASTQ Files
+- Search and identify paired-end FASTQ files based on standard naming (`*_R1.fastq*` and `*_R2.fastq*`).
+
+### 🧬 3. Align Reads Using STAR
+- Align reads to the reference genome using **STAR**.
+- **Output**: Sorted BAM files for each sample.
+
+### 📊 4. Generate Gene Counts with featureCounts
+- Use **featureCounts** to quantify reads mapped to genes based on the GTF annotation file.
+- **Output**: A combined gene counts matrix (`all_samples_gene_counts.txt`).
+
+---
+
+# 🧬 Differential Expression Analysis with DESeq2
+
+This stage identifies differentially expressed genes (DEGs) between conditions based on normalized gene counts.
+
+---
+
+## 📂 Input Requirements
+- Gene counts matrix (`count_p10_mrna.csv`)
+- Sample metadata/study design file (`sd.csv`)
+
+---
+
+## 🔹 Pipeline Steps
+
+### 📁 1. Load Gene Counts and Study Design
+- Load raw gene counts and corresponding sample group information.
+
+### 🔎 2. Loop Over Each Condition
+- For each condition/factor in the study design, create a model for differential expression analysis.
+
+### 📈 3. Normalize and Perform DESeq2 Analysis
+- Normalize library sizes and perform differential expression testing.
+
+### 🧹 4. Filter Significant DEGs
+- Extract genes with adjusted p-value ≤ 0.05.
+
+### 💾 5. Save DESeq2 Results
+- Save significant DEGs into `significant_results_*.csv`.
+- If no DEGs are detected, create a `no_significant_results_*.csv`.
+
+---
+
+# 🧬 Functional Enrichment Analysis with STRING
+
+This stage identifies enriched biological processes, pathways, and functions among upregulated and downregulated genes.
+
+---
+
+## 📂 Input Requirements
+- DESeq2 results file (`significant_results_*.csv`)
+- STRING organism Taxonomy ID (e.g., `9606` for human, `9823` for pig)
+
+---
+
+## 🔹 Pipeline Steps
+
+### 📁 1. Load DEG Results
+- Read in the DEGs from DESeq2 output.
+
+### ➗ 2. Separate Upregulated and Downregulated Genes
+- Identify "upregulated" and "downregulated" genes based on the `regulation` column.
+
+### 🔥 3. Perform STRING Enrichment Analysis
+- Perform functional enrichment analysis separately for:
+  - Upregulated genes
+  - Downregulated genes
+- Using the **STRING database** through **rbioapi**.
+
+### 💾 4. Save Enrichment Results
+- Save enrichment results into:
+  - `*_up.csv` (upregulated enrichment)
+  - `*_down.csv` (downregulated enrichment)
+
+---
+
+# 🚀 Example Commands
+
+### 🔹 Run the Python STAR + featureCounts Pipeline
+
 ```
 python3 run_rna_pipeline.py \
   --fastq-dir test_data \
@@ -27,48 +109,15 @@ python3 run_rna_pipeline.py \
   --threads 2
 ```
 
-This R script performs differential expression analysis 
-Using the DEseq2 package:
-
 ```
-1- Loads count matrix and sample metadata (study design).
-2- Loops through each variable in the study design.
-3- Runs DESeq2 for normalization and differential expression.
-4- Filters significant genes (FDR ≤ 0.05).
-5- Labels genes as up/downregulated.
-6- Saves results for each comparison to output files.
-```
-using the edgeR package:
-```
-1- Reads a raw count matrix from a CSV file.
-2- Extracts case and control sample columns based on user input.
-3- Filters lowly expressed genes.
-4- Normalizes the count data using TMM.
-5- Builds a design matrix based on sample conditions.
-6- Performs a likelihood ratio test for DE analysis.
-7- Filters significant DEGs based on logFC and FDR thresholds.
-8- Saves both normalized data and significant DEGs to CSV files.
-```
-```
-Rscript run_edgeR_DEG.R \                          # Run the R script using Rscript
-  --raw.reads.csv counts.csv \                     # Path to your input count matrix CSV file
-  --colname.case Case1 \                           # Name of the first case sample column in the CSV
-  --number.case.samples 3 \                        # Total number of case samples
-  --named.case Case \                              # Label to assign to the case group
-  --colname.control Control1 \                     # Name of the first control sample column in the CSV
-  --number.control.samples 3 \                     # Total number of control samples
-  --named.control Control \                        # Label to assign to the control group
-  --number.logFC 1 \                               # Log2 fold-change threshold for filtering DEGs
-  --number.FDR 0.05                                # FDR (adjusted p-value) threshold for filtering DEGs
-```
-Enrichment 
-```
-1- Load required libraries (dplyr, readxl, rbioapi).
-2- Parse input arguments: CSV file name and STRING organism ID.
-3- Read the input CSV containing gene symbols and regulation status.
-4- Filter up-regulated genes and run STRING enrichment.
-5- Save up-regulated enrichment results to a CSV file.
-6- Filter down-regulated genes and run STRING enrichment.
-7- Save down-regulated enrichment results to another CSV file.
-8- If no results are found, save a message instead of a table.
+Rscript run_edgeR_DEG.R \
+  --raw.reads.csv counts.csv \
+  --colname.case Case1 \
+  --number.case.samples 3 \
+  --named.case Case \
+  --colname.control Control1 \
+  --number.control.samples 3 \
+  --named.control Control \
+  --number.logFC 1 \
+  --number.FDR 0.05
 ```
